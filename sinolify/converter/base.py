@@ -1,8 +1,8 @@
 import re
 from typing import Set, Generator, Callable
 
-from sinolify.log import log
-from sinolify.package import Package
+from sinolify.utils.log import log
+from sinolify.utils.package import Package
 
 
 class ConverterBase:

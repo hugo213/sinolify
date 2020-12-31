@@ -1,7 +1,7 @@
 import re
 
 from sinolify.converter.base import ConverterBase
-from sinolify.log import log, warning_assert, error_assert
+from sinolify.utils.log import log, warning_assert, error_assert
 
 
 class SowaToSinolConverter(ConverterBase):
