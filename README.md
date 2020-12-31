@@ -14,7 +14,7 @@ first.
 
 ## Usage
 Type:
-```
+```bash
 sinolify-convert -h
 ```
 for usage information.
