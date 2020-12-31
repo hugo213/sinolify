@@ -45,6 +45,9 @@ class Package:
             self._id = id
             os.mkdir(os.path.join(self._tmp_dir.name, id), mode=0o755)
 
+    def __del__(self):
+        self._tmp_dir.cleanup()
+
     @property
     def id(self) -> str:
         """ Returns task ID. """
