@@ -27,10 +27,10 @@ class SowaToSinolConverter(ConverterBase):
     def _make_doc(self):
         """ Copies documents.
 
-        Extracts the statement and it's source to doc, along with anything
+        Extracts the statement and its source to doc, along with anything
         that might be some sort of dependency.
         """
-        error_assert(self.copy(rf'doc/{self._id}\.pdf') > 0,
+        error_assert(self.copy_rename(rf'doc/{self._id}\.pdf', f'doc/{self._id}zad.pdf') > 0,
                      'No problem statement')
         warning_assert(self.copy_rename(rf'desc/{self._id}\.tex', f'doc/{self._id}zad.tex'),
                        'No statement source')
