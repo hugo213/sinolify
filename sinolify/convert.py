@@ -4,7 +4,7 @@ import sys
 import os.path
 
 from sinolify.package import Package
-from sinolify.converter import SowaToSinolConverter
+from sinolify.converter.sowa import SowaToSinolConverter
 from sinolify.log import log
 
 def main():
@@ -25,10 +25,6 @@ def main():
     sinol = Package(id=sowa.id)
     converter = SowaToSinolConverter(sowa, sinol)
     converter.convert()
-
-    not_processed = converter.not_processed()
-    if not_processed:
-        log.warning('%d file(s) not processed: %s', len(not_processed), ', '.join(not_processed))
 
     sinol.save(args.output, overwrite=args.f)
     log.info('Output saved to %s', args.output)
