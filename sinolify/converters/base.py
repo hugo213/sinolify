@@ -14,7 +14,7 @@ class ConverterBase:
     """
     _source: Package
     _target: Package
-    _processed: Set[str] = set()
+    _processed: Set[str]
 
     def __init__(self, source: Package, target: Package):
         """ Instantiates a new converters.
@@ -25,6 +25,7 @@ class ConverterBase:
         """
         self._source = source
         self._target = target
+        self._processed = set()
 
     def find(self, regex: str) -> Generator[str, None, None]:
         """ Yields all local paths in the source package matching the regex.
