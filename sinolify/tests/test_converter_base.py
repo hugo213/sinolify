@@ -21,7 +21,6 @@ class TestConverterBase(TestCase):
 
         self.target = Package(id='target')
         self.converter = ConverterBase(source=self.source, target=self.target)
-        print('Setup done')
         super().setUp()
 
 
