@@ -7,10 +7,11 @@ from typing import Generator
 
 
 class Package:
-    """Represents a task package archive.
+    """ Represents a task package archive.
 
     Package has a short string `ID`.
-    Files inside the package can be referred to by package-root-relative *local paths*.
+    Files inside the package can be referred to by package-root-relative
+    *local paths*.
     """
     _source: str
     _tmp_dir: tempfile.TemporaryDirectory
@@ -23,12 +24,12 @@ class Package:
         contains a single directory. Name of this directory is interpreted as
         the task ID.
 
-        :param zip: If `zip` is specified, the package is loaded from the
-        .zip file which path is `zip`.  If `id` is also specified, the loaded
-        package ID is expected to match with `id`.
+        :param zip: If `zip` is specified, the package is loaded from the .zip
+            file which path is `zip`.  If `id` is also specified, the loaded
+            package ID is expected to match with `id`.
 
         :param id: If `id` is specified and `zip` is not, a new package with
-        specified ID is created.
+            specified ID is created.
         """
 
         assert zip or id
@@ -51,7 +52,7 @@ class Package:
 
     @property
     def root(self) -> str:
-        """ Returns path of package's root directory """
+        """ Returns path of package's root directory. """
         return os.path.join(self._tmp_dir.name, self.id)
 
     def abspath(self, local_path: str) -> str:
@@ -59,10 +60,10 @@ class Package:
         return os.path.join(self.root, local_path)
 
     def find(self, regex: str) -> Generator[str, None, None]:
-        """ Yields all files whose local paths match `regex`
+        """ Yields all files which local paths match `regex`.
 
         :param regex: Regular expression to match paths with.
-        Note that local paths contain no leading /.
+            Note that local paths contain no leading slash.
         """
         for root, dirs, files in os.walk(self.root):
             for name in files:
@@ -73,9 +74,9 @@ class Package:
     def add(self, path: str, target: str) -> None:
         """ Adds a file to the package.
 
-        :param path: path of a file to add to the package.
+        :param path: Path of a file to add to the package.
 
-        :param target: target local path for the target.
+        :param target: Local path for the target.
         """
         target_path = self.abspath(target)
         os.makedirs(os.path.dirname(target_path), exist_ok=True, mode=0o755)
@@ -86,7 +87,7 @@ class Package:
 
         :param path: Output .zip file.
 
-        :param overwrite: If true, allows overwrite of output file
+        :param overwrite: If true, allows to overwrite output file.
         """
         zip = zipfile.ZipFile(path, mode=('x' if not overwrite else 'w'))
         for p in self.find('.*'):

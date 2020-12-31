@@ -19,15 +19,15 @@ class ConverterBase:
     def __init__(self, source: Package, target: Package):
         """ Instantiates a new converter.
 
-        :param source: The source package
+        :param source: The source package.
 
-        :param target: The target package
+        :param target: The target package.
         """
         self._source = source
         self._target = target
 
     def find(self, regex: str) -> Generator[str, None, None]:
-        """Yields all local paths in the source package matching the regex.
+        """ Yields all local paths in the source package matching the regex.
 
         :param regex: Regex to match local paths with.
 
@@ -37,7 +37,7 @@ class ConverterBase:
             yield p
 
     def ignore(self, regex: str) -> None:
-        """Marks all matching paths as processed.
+        """ Marks all matching paths as processed.
 
         :param regex: Regular expression to match paths with.
         """
@@ -52,11 +52,13 @@ class ConverterBase:
         :param regex: Regex to match the paths in source with.
 
         :param transform: An optional function used to transform a source path
-        into a target path. Identity by default.
+            into a target path.
 
-        :param condition: An extra condition a matched path must satisfy to be copied.
+        :param condition: An extra condition a matched path must satisfy to be
+            copied.
 
-        :param ignore_processed: If set, the files that are marked as processed are ignored.
+        :param ignore_processed: If set, the files that are marked as processed
+            are ignored.
 
         :return: Number of copied files.
         """
@@ -72,17 +74,20 @@ class ConverterBase:
     def copy_rename(self, regex: str, repl: str,
                     condition: Callable[[str], bool] = (lambda path: True),
                     ignore_processed: bool = False) -> int:
-        """ Copies files from *source* to *target*.
+        """ Copies files from *source* to *target* and renames them.
 
-        The files are renamed using `re.replace` as specified by `regex` and `repl`.
+        The files are renamed using `re.replace` as specified by `regex` and
+        `repl`.
 
         :param regex: Regex to match the paths with.
 
         :param repl: A replacement string. See `re.replace`.
 
-        :param condition: An extra condition a matched path must satisfy to be copied.
+        :param condition: An extra condition a matched path must satisfy to be
+            copied.
 
-        :param ignore_processed: If set, the files that are marked as processed are ignored.
+        :param ignore_processed: If set, the files that are marked as processed
+            are ignored.
 
         :return: Number of files copied.
         """

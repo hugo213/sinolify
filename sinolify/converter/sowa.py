@@ -7,7 +7,8 @@ from sinolify.log import log, warning_assert, error_assert
 class SowaToSinolConverter(ConverterBase):
     """ A converter used to convert Sowa packages to Sinol packages.
 
-    See /dev/null for Sowa format specification and /dev/null for Sinol format specification.
+    See /dev/null for Sowa format specification and /dev/null for Sinol format
+        specification.
     """
 
     _prog_ext = '(?:cpp|c|cc|pas)'
