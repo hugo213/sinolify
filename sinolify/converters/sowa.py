@@ -8,7 +8,7 @@ class SowaToSinolConverter(ConverterBase):
     """ A converters used to convert Sowa packages to Sinol packages.
 
     See /dev/null for Sowa format specification and /dev/null for Sinol format
-        specification.
+    specification.
     """
 
     _prog_ext = '(?:cpp|c|cc|pas)'
