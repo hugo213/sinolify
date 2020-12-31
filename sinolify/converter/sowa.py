@@ -31,12 +31,15 @@ class SowaToSinolConverter(ConverterBase):
         Extracts the statement and its source to doc, along with anything
         that might be some sort of dependency.
         """
-        error_assert(self.copy_rename(rf'doc/{self._id}\.pdf', f'doc/{self._id}zad.pdf') > 0,
+        error_assert(self.copy_rename(rf'doc/{self._id}\.pdf',
+                                      f'doc/{self._id}zad.pdf') > 0,
                      'No problem statement')
-        warning_assert(self.copy_rename(rf'desc/{self._id}\.tex', f'doc/{self._id}zad.tex'),
+        warning_assert(self.copy_rename(rf'desc/{self._id}\.tex',
+                                        f'doc/{self._id}zad.tex'),
                        'No statement source')
         self.ignore(f'desc/{self._id}_opr.tex')
-        self.copy_rename(rf'desc/(.*\.(?:pdf|tex))', rf'doc/\1', ignore_processed=True)
+        self.copy_rename(rf'desc/(.*\.(?:pdf|tex))', rf'doc/\1',
+                         ignore_processed=True)
 
     def _make_solutions(self) -> None:
         """ Copies solutions.
@@ -46,9 +49,14 @@ class SowaToSinolConverter(ConverterBase):
         numbered with integers starting from 2.
         """
         log.debug('Making solutions')
-        error_assert(self.copy_rename(rf'sol/{self._id}\.({self._prog_ext})', rf'prog/{self._id}.\1'), 'No model solution')
+
+        error_assert(self.copy_rename(rf'sol/{self._id}\.({self._prog_ext})',
+                                      rf'prog/{self._id}.\1'),
+                     'No main model solution')
+
         for i, p in enumerate(self.find(rf'sol/{self._id}.+\.{self._prog_ext}')):
-            self.copy(p, lambda p: re.sub(rf'.*\.({self._prog_ext})', rf'prog/{self._id}{i + 2}.\1', p))
+            self.copy(p, lambda p: re.sub(rf'.*\.({self._prog_ext})',
+                                          rf'prog/{self._id}{i + 2}.\1', p))
 
         self.copy(rf'utils/.*\.({self._prog_ext}|sh)', lambda p: f'prog/{p}')
 
@@ -63,7 +71,8 @@ class SowaToSinolConverter(ConverterBase):
         if self.find('check/standard_compare.cpp'):
             self.ignore('check/standard_compare.cpp')
         else:
-            error_assert(self.copy_rename(rf'check/.*\.({self._prog_ext})', rf'prog/{self._id}chk.\1.todo'),
+            error_assert(self.copy_rename(rf'check/.*\.({self._prog_ext})',
+                                          rf'prog/{self._id}chk.\1.todo'),
                          'Exactly one checker expected')
 
     def convert(self) -> None:
