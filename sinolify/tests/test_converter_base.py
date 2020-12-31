@@ -51,7 +51,6 @@ class TestConverterBase(TestCase):
                          set(self.target.find('.*')))
 
     def test_not_processed(self):
-        print(self.converter._processed)
         self.converter.ignore(r'main/.*')
         self.assertEqual({'other/file7'}, self.converter.not_processed())
 
