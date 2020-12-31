@@ -2,13 +2,13 @@ import os.path
 import sys
 
 from sinolify.utils.package import Package
-from sinolify.converter.sowa import SowaToSinolConverter
+from sinolify.converters.sowa import SowaToSinolConverter
 from sinolify.utils.log import log
 from sinolify.tools.base import ToolBase
 
 
 class ConvertTool(ToolBase):
-    description = 'Sowa to Sinol converter'
+    description = 'Sowa to Sinol converters'
 
     def make_parser(self):
         parser = super().make_parser()

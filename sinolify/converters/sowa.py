@@ -1,11 +1,11 @@
 import re
 
-from sinolify.converter.base import ConverterBase
+from sinolify.converters.base import ConverterBase
 from sinolify.utils.log import log, warning_assert, error_assert
 
 
 class SowaToSinolConverter(ConverterBase):
-    """ A converter used to convert Sowa packages to Sinol packages.
+    """ A converters used to convert Sowa packages to Sinol packages.
 
     See /dev/null for Sowa format specification and /dev/null for Sinol format
         specification.
