@@ -8,8 +8,8 @@ from sinolify.utils.package import Package
 class ConverterBase:
     """ A base class for *converters* operating on problem packages.
 
-    A converters is a utility intended to simplify operations required to build
-    one package (target) based on another package (source). The converters keeps
+    A converter is a utility intended to simplify operations required to build
+    one package (target) based on another package (source). The converter keeps
     track of the processed paths in the source package.
     """
     _source: Package
