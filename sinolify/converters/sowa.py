@@ -19,7 +19,7 @@ class SowaToSinolConverter(ConverterBase):
         return self._source.id
 
     def _make_tests(self) -> None:
-        """ Copies tests (in/*.in, out/*.out). """
+        """ Copies tests. """
         error_assert(self.copy(rf'in/{self._id}\d+[a-z]*.in') > 0,
                      'No input files')
         warning_assert(self.copy(rf'out/{self._id}\d+[a-z]*.out') > 0,
@@ -38,7 +38,7 @@ class SowaToSinolConverter(ConverterBase):
                                         f'doc/{self._id}zad.tex'),
                        'No statement source')
         self.ignore(f'desc/{self._id}_opr.tex')
-        self.copy_rename(rf'desc/(.*\.(?:pdf|tex))', rf'doc/\1',
+        self.copy_rename(rf'desc/(.*\.(?:pdf|tex|cls|png|jpg|JPG|sty))', rf'doc/\1',
                          ignore_processed=True)
 
     def _make_solutions(self) -> None:
@@ -72,8 +72,9 @@ class SowaToSinolConverter(ConverterBase):
             self.ignore('check/standard_compare.cpp')
         else:
             error_assert(self.copy_rename(rf'check/.*\.({self._prog_ext})',
-                                          rf'prog/{self._id}chk.\1.todo'),
+                                          rf'prog/{self._id}chk.\1.todo') == 1,
                          'Exactly one checker expected')
+        self.ignore('check/[^.]*')
 
     def convert(self) -> None:
         """ Executes a conversion from Sowa to Sinol.
@@ -84,8 +85,11 @@ class SowaToSinolConverter(ConverterBase):
         self._make_solutions()
         self._make_doc()
         self._make_checker()
+        self.ignore('.*(~|\.swp)')
         self.ignore('.sowa-sign')  #
         self.ignore('utils/.*')
+        self.ignore('desc/.*\.(aux|log|synctex)')
+        self.ignore('tmpdesc/.*')
         self.ignore('Makefile.in')
         self.ignore(f'info/{self._id}_opr.pdf')
 
