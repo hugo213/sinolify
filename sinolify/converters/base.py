@@ -37,6 +37,17 @@ class ConverterBase:
         for p in self._source.find(regex):
             yield p
 
+    def exists(self, regex: str) -> bool:
+        """ Checks if a path matching regex exists.
+
+        :param regex: Regex to match local paths with.
+
+        :return: True if any path matches the regex
+        """
+        for _ in self.find(regex):
+            return True
+        return False
+
     def ignore(self, regex: str) -> None:
         """ Marks all matching paths as processed.
 

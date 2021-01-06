@@ -68,12 +68,16 @@ class SowaToSinolConverter(ConverterBase):
         with `.todo` suffix and a warning is emmited, as Sowa checkers need
         manual fix to work.
         """
-        if self.find('check/standard_compare.cpp'):
+        if not self.exists('check/.*'):
+            log.debug('No checker found')
+        elif self.exists('check/standard_compare.cpp'):
+            log.debug('Standard checker found')
             self.ignore('check/standard_compare.cpp')
         else:
             error_assert(self.copy_rename(rf'check/.*\.({self._prog_ext})',
                                           rf'prog/{self._id}chk.\1.todo') == 1,
                          'Exactly one checker expected')
+            log.warning('Non-standard checker requires manual fix.')
         self.ignore('check/[^.]*')
 
     def convert(self) -> None:
