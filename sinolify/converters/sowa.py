@@ -67,7 +67,7 @@ class SowaToSinolConverter(ConverterBase):
         If a checker is named `standard_compare.cpp` it is assumed to be the
         default checker that can be safely ignored. Otherwise it is copied
         with `.todo` suffix and a warning is emmited, as Sowa checkers need
-        manual fix to work.
+        manual fix (output order change) to work.
         """
         if not self.exists('check/.*'):
             log.debug('No checker found')
@@ -91,7 +91,7 @@ class SowaToSinolConverter(ConverterBase):
         self._make_doc()
         self._make_checker()
 
-        # Ignore ditor backup files
+        # Ignore editor backup files
         self.ignore(r'.*(~|\.swp|\.backup|\.bak)')
 
         # Ignore package creation system files
