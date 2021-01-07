@@ -38,7 +38,7 @@ class SowaToSinolConverter(ConverterBase):
                                         f'doc/{self._id}zad.tex'),
                        'No statement source')
         self.ignore(f'desc/{self._id}_opr.tex')
-        self.copy_rename(rf'desc/(.*\.(?:pdf|tex|cls|png|jpg|JPG|sty))', rf'doc/\1',
+        self.copy_rename(rf'desc/(.*\.(?:pdf|tex|cls|png|jpg|JPG|sty|odg))', rf'doc/\1',
                          ignore_processed=True)
 
     def _make_solutions(self) -> None:
@@ -59,6 +59,7 @@ class SowaToSinolConverter(ConverterBase):
                                           rf'prog/{self._id}{i + 2}.\1', p))
 
         self.copy(rf'utils/.*\.({self._prog_ext}|sh)', lambda p: f'prog/{p}')
+        self.copy_rename(rf'sol/(.*{self._prog_ext})', r'prog/other/\1')
 
     def _make_checker(self) -> None:
         """Copies a checker.
@@ -89,13 +90,27 @@ class SowaToSinolConverter(ConverterBase):
         self._make_solutions()
         self._make_doc()
         self._make_checker()
-        self.ignore('.*(~|\.swp)')
-        self.ignore('.sowa-sign')  #
-        self.ignore('utils/.*')
-        self.ignore('desc/.*\.(aux|log|synctex)')
-        self.ignore('tmpdesc/.*')
-        self.ignore('Makefile.in')
+
+        # Ignore ditor backup files
+        self.ignore(r'.*(~|\.swp|\.backup|\.bak)')
+
+        # Ignore package creation system files
+        self.ignore(r'.sowa-sign')
+        self.ignore(r'(.*/)?Makefile(\.in)?')
+
+        # Ignore utils
+        self.ignore(r'utils/.*')
+
+        # Ignore LaTeX's leftovers
+        self.ignore(r'desc/.*\.(aux|log|synctex)')
+
+        # Ignore solution description
         self.ignore(f'info/{self._id}_opr.pdf')
+
+        # Ignore some common temporary files left by authors
+        self.ignore(r'tmpdesc/.*')
+        self.ignore(r'(sol|check)/.*(\.o|_PAS|_CPP|_C|\.out)')
+        self.ignore(rf'[^/]*\.{self._prog_ext}')
 
         if self.not_processed():
             log.warning('%d file(s) not processed: %s', len(self.not_processed()),
