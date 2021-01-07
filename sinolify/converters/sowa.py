@@ -5,7 +5,7 @@ from sinolify.utils.log import log, warning_assert, error_assert
 
 
 class SowaToSinolConverter(ConverterBase):
-    """ A converters used to convert Sowa packages to Sinol packages.
+    """ A converter used to convert Sowa packages to Sinol packages.
 
     See /dev/null for Sowa format specification and /dev/null for Sinol format
     specification.
@@ -18,14 +18,14 @@ class SowaToSinolConverter(ConverterBase):
         """ A helper extracting source package ID. """
         return self._source.id
 
-    def _make_tests(self) -> None:
+    def make_tests(self) -> None:
         """ Copies tests. """
         error_assert(self.copy(rf'in/{self._id}\d+[a-z]*.in') > 0,
                      'No input files')
         warning_assert(self.copy(rf'out/{self._id}\d+[a-z]*.out') > 0,
                        'No output files')
 
-    def _make_doc(self):
+    def make_doc(self):
         """ Copies documents.
 
         Extracts the statement and its source to doc, along with anything
@@ -41,7 +41,7 @@ class SowaToSinolConverter(ConverterBase):
         self.copy_rename(rf'desc/(.*\.(?:pdf|tex|cls|png|jpg|JPG|sty|odg))', rf'doc/\1',
                          ignore_processed=True)
 
-    def _make_solutions(self) -> None:
+    def make_solutions(self) -> None:
         """ Copies solutions.
 
         Copies the main solution (i.e. named exactly {task id}).
@@ -61,7 +61,7 @@ class SowaToSinolConverter(ConverterBase):
         self.copy(rf'utils/.*\.({self._prog_ext}|sh)', lambda p: f'prog/{p}')
         self.copy_rename(rf'sol/(.*{self._prog_ext})', r'prog/other/\1')
 
-    def _make_checker(self) -> None:
+    def make_checker(self) -> None:
         """Copies a checker.
 
         If a checker is named `standard_compare.cpp` it is assumed to be the
@@ -86,10 +86,10 @@ class SowaToSinolConverter(ConverterBase):
 
         Emits a warning if some unexpected files are not processed.
         """
-        self._make_tests()
-        self._make_solutions()
-        self._make_doc()
-        self._make_checker()
+        self.make_tests()
+        self.make_solutions()
+        self.make_doc()
+        self.make_checker()
 
         # Ignore editor backup files
         self.ignore(r'.*(~|\.swp|\.backup|\.bak)')
