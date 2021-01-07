@@ -5,6 +5,8 @@ from sinolify.utils.log import log
 
 
 class ToolBase:
+    """ A base for a CLI tool """
+
     description = 'CLI Tool Base'
 
     _loglevels = {
@@ -15,14 +17,21 @@ class ToolBase:
     }
 
     def make_parser(self):
+        """ Prepares an argument parser tor the tool, setting a description
+        and a verbosity flag
+
+        :returns: argparse parser
+        """
         parser = argparse.ArgumentParser(description=self.description)
         parser.add_argument('-v', choices=self._loglevels, default='warning', help='Verbosity level')
         return parser
 
     def setup_logging(self, level):
+        """ Sets global logging level to the specified one. """
         log.setLevel(level)
 
     def validate_args(self, args):
+        """ Called for argument validation, expected to fail on invalid arg """
         pass
 
     def main(self):
