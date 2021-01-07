@@ -1,5 +1,8 @@
 import logging
+import sys
+
 log = logging.getLogger(__package__)
+log.addHandler(logging.StreamHandler(stream=sys.stderr))
 
 
 def warning_assert(condition, *args):
