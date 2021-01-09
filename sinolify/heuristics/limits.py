@@ -5,7 +5,7 @@ import os.path
 
 from sinolify.executors.compilers import compiler
 from sinolify.executors.timer import TimerPool, PerfTimer
-from sinolify.utils.log import error_assert, log
+from sinolify.utils.log import error_assert, log, die
 
 
 def pick_time_limits(src_file, input_files, *, threads=1):
@@ -15,7 +15,9 @@ def pick_time_limits(src_file, input_files, *, threads=1):
         sandboxed_src = os.path.join(sandbox, f'a{src_ext}')
         shutil.copy(src_file, sandboxed_src)
         c = compiler(sandboxed_src, output_ext='.e')
-        error_assert(c.compile(), f'Failed to compile the solution:\n{c.log}')
+        if not c.compile():
+            log.info(c.log)
+            die('Failed to compile model solution')
         sandboxed_exe = os.path.join(sandbox, 'a.e')
         times = TimerPool(PerfTimer(sandboxed_exe, timeout=20), threads=threads).measure(input_files)
         max_time = max(times)
