@@ -9,14 +9,21 @@ from sinolify.utils.system import where
 
 
 class TimerBase:
+    """ Base class for a timer. """
     def __init__(self, exe_file):
         self.exe_file = exe_file
 
     def measure(self, input_file: str) -> float:
+        """ Measures execution time of `exe_file` with input from `input_file` """
         raise NotImplementedError
 
 
 class PerfTimer(TimerBase):
+    """ A timer using `perf` to count instructions.
+
+    Simulates a processor executing 1 instruction per cycle with frequency
+    of {ghz} GHz.
+    """
     def __init__(self, exe_file, timeout=30, ghz=2):
         super().__init__(exe_file)
         self.timeout = timeout
@@ -39,6 +46,7 @@ class PerfTimer(TimerBase):
 
 
 class TimerPool:
+    """ Measures execution time on multiple inputs using a thread pool. """
     timer: TimerBase
     threads: int
 

@@ -5,10 +5,23 @@ import os.path
 
 from sinolify.executors.compilers import compiler
 from sinolify.executors.timer import TimerPool, PerfTimer
-from sinolify.utils.log import error_assert, log, die
+from sinolify.utils.log import log, die
 
 
 def pick_time_limits(src_file, input_files, *, threads=1):
+    """ Heuristically picks time limits based on solution's performance.
+
+    The solution is compiled and run on all input files.
+    Maximum time is multiplied by 3 and rounded up to a multiply of 0.5s.
+
+    :param src_file: Solution source file.
+
+    :param input_files: Input files to test solution on.
+
+    :param threads: Number of parallel runs allowed.
+
+    :returns: Suggested time limit.
+    """
     log.info(f'Picking time limits for {src_file}')
     with tempfile.TemporaryDirectory() as sandbox:
         src_ext = os.path.splitext(src_file)[1]

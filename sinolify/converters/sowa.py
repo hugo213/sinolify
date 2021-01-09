@@ -1,10 +1,7 @@
 import os
 import re
-import shutil
-import tempfile
 
 from sinolify.converters.base import ConverterBase
-from sinolify.executors.timer import TimerPool, PerfTimer
 from sinolify.utils.log import log, warning_assert, error_assert
 from sinolify.heuristics.limits import pick_time_limits
 
@@ -92,18 +89,16 @@ class SowaToSinolConverter(ConverterBase):
         self.ignore('check/[^.]*')
 
     def make_time_limits_config(self):
-        # Pick time limit
+        """ Heuristically chooses time limit and returns config entry setting it """
         main_solution = self.one(rf'sol/{self._id}\.{self._prog_ext}')
         error_assert(main_solution, 'No main solution found')
         main_solution = self._source.abspath(main_solution)
         inputs = [self._source.abspath(p) for p in self.find(rf'in/{self._id}\d+[a-z]*.in')]
         limit = int(pick_time_limits(main_solution, inputs, threads=self.threads) * 1000)
 
-        # Generate config
         config = 'time_limits:\n'
         tests = [os.path.basename(i).lstrip(self._id).rstrip('.in') for i in inputs]
         config += '\n'.join([f'\t{test}: {limit}' for test in sorted(tests)])
-
         return config
 
     def make_config(self):

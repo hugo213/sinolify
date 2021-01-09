@@ -3,6 +3,7 @@ import subprocess
 
 
 class CompilerBase(object):
+    """ Base class for a compiler """
     supported_extensions = []
     default_flags = []
 
@@ -17,9 +18,14 @@ class CompilerBase(object):
         self.log = ''
 
     def cmd(self):
+        """ Returns command to compile the code. """
         raise NotImplementedError
 
     def compile(self):
+        """ Runs compile command (`cmd()`) and sets `log`.
+
+        :return: True on success
+        """
         try:
             self.log = subprocess.check_output(self.cmd(), stderr=subprocess.STDOUT,
                                                timeout=self.timeout).decode('utf-8')
@@ -46,6 +52,7 @@ class PascalCompiler(CompilerBase):
 
 
 def compiler(path, **kwargs):
+    """ Selects and instantiates a compiler for a given path."""
     ext = os.path.splitext(path)[1]
     for c in CompilerBase.__subclasses__():
         if ext in c.supported_extensions:
