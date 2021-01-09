@@ -21,6 +21,12 @@ class ConvertTool(ToolBase):
 
         parser.add_argument('-f', action='store_true',
                             help='Allow overwrite of output file')
+
+        parser.add_argument('-t', action='store_true',
+                            help='Auto adjust time limits')
+
+        parser.add_argument('-j', type=int, default=1,
+                            help='Number of threads for adjusting time limits')
         return parser
 
     def validate_args(self, args):
@@ -30,7 +36,7 @@ class ConvertTool(ToolBase):
     def main(self):
         sowa = Package(zip=self.args.source)
         sinol = Package(id=sowa.id)
-        converter = SowaToSinolConverter(sowa, sinol)
+        converter = SowaToSinolConverter(sowa, sinol, auto_time_limits=self.args.t, threads=self.args.j)
         converter.convert()
         sinol.save(self.args.output, overwrite=self.args.f)
         log.info('Output saved to %s', self.args.output)

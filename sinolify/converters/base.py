@@ -1,5 +1,5 @@
 import re
-from typing import Set, Generator, Callable
+from typing import Set, Generator, Callable, Optional
 
 from sinolify.utils.log import log
 from sinolify.utils.package import Package
@@ -47,6 +47,16 @@ class ConverterBase:
         for _ in self.find(regex):
             return True
         return False
+
+    def one(self, regex: str) -> Optional[str]:
+        """ Finds a single local path in the source package matching the regex.
+
+        :param regex: Regex to match local paths with.
+
+        :return: Path of a file matching the regex or None if not found
+        """
+        for f in self.find(regex):
+            return f
 
     def ignore(self, regex: str) -> None:
         """ Marks all matching paths as processed.
