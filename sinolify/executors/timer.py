@@ -25,11 +25,14 @@ class PerfTimer(TimerBase):
     def measure(self, input_file: str) -> float:
         with tempfile.NamedTemporaryFile(mode='w') as tmp:
             try:
-                subprocess.check_output(
-                    [where('perf'), 'stat', '-einstructions', '-x,', f'-o{tmp.name}', self.exe_file],
-                    stdin=open(input_file, 'r'), timeout=self.timeout)
+                cmd = [where('perf'), 'stat', '-einstructions', '-x,', f'-o{tmp.name}',
+                     where('bash'), '-c', f'{self.exe_file}; exit $?']
+                subprocess.check_output(cmd, stdin=open(input_file, 'r'),
+                                        stderr=subprocess.DEVNULL, timeout=self.timeout)
             except subprocess.TimeoutExpired:
                 die('Model solution execution timed out')
+            except subprocess.CalledProcessError:
+                die(f'Model solution returned non-zero exit code on {input_file}')
             perf_out = open(tmp.name, 'r').read()
             instr = int(re.search(r'(\d+),,instructions', perf_out).group(1))
             return instr/(self.ghz*10**9)

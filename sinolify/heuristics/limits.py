@@ -18,6 +18,7 @@ def pick_time_limits(src_file, input_files, *, threads=1):
         if not c.compile():
             log.info(c.log)
             die('Failed to compile model solution')
+        log.debug(c.log)
         sandboxed_exe = os.path.join(sandbox, 'a.e')
         times = TimerPool(PerfTimer(sandboxed_exe, timeout=20), threads=threads).measure(input_files)
         max_time = max(times)
