@@ -1,7 +1,7 @@
 import subprocess
 import tempfile
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Iterable
+from typing import Iterable, List
 import re
 
 from sinolify.utils.log import die
