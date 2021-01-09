@@ -4,6 +4,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Iterable
 import re
 
+from sinolify.utils.log import die
 from sinolify.utils.system import where
 
 
@@ -23,9 +24,12 @@ class PerfTimer(TimerBase):
 
     def measure(self, input_file: str) -> float:
         with tempfile.NamedTemporaryFile(mode='w') as tmp:
-            subprocess.check_output(
-                [where('perf'), 'stat', '-einstructions', '-x,', f'-o{tmp.name}', self.exe_file],
-                stdin=open(input_file, 'r'), timeout=self.timeout)
+            try:
+                subprocess.check_output(
+                    [where('perf'), 'stat', '-einstructions', '-x,', f'-o{tmp.name}', self.exe_file],
+                    stdin=open(input_file, 'r'), timeout=self.timeout)
+            except subprocess.TimeoutExpired:
+                die('Model solution execution timed out')
             perf_out = open(tmp.name, 'r').read()
             instr = int(re.search(r'(\d+),,instructions', perf_out).group(1))
             return instr/(self.ghz*10**9)
