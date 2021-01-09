@@ -8,7 +8,7 @@ from sinolify.executors.timer import TimerPool, PerfTimer
 from sinolify.utils.log import log, die
 
 
-def pick_time_limits(src_file, input_files, *, threads=1):
+def pick_time_limits(src_file: str, input_files: str, *, threads: int = 1):
     """ Heuristically picks time limits based on solution's performance.
 
     The solution is compiled and run on all input files.

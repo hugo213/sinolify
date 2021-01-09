@@ -21,10 +21,15 @@ class TimerBase:
 class PerfTimer(TimerBase):
     """ A timer using `perf` to count instructions.
 
-    Simulates a processor executing 1 instruction per cycle with frequency
-    of {ghz} GHz.
+    Simulates a processor executing 1 instruction per cycle.
     """
-    def __init__(self, exe_file, timeout=30, ghz=2):
+
+    def __init__(self, exe_file: str, timeout: int = 30, ghz: float = 2):
+        """ Instantiates  a timer for `exe_file`.
+
+        Simulates a {ghz}GHz processor. Wall time timeout is set to `timeout`.
+        """
+
         super().__init__(exe_file)
         self.timeout = timeout
         self.ghz = ghz
@@ -32,8 +37,9 @@ class PerfTimer(TimerBase):
     def measure(self, input_file: str) -> float:
         with tempfile.NamedTemporaryFile(mode='w') as tmp:
             try:
+                # Wrapping in bash to catch sigsegvs etc
                 cmd = [where('perf'), 'stat', '-einstructions', '-x,', f'-o{tmp.name}',
-                     where('bash'), '-c', f'{self.exe_file}; exit $?']
+                       where('bash'), '-c', f'{self.exe_file}; exit $?']
                 subprocess.check_output(cmd, stdin=open(input_file, 'r'),
                                         stderr=subprocess.DEVNULL, timeout=self.timeout)
             except subprocess.TimeoutExpired:
@@ -50,11 +56,16 @@ class TimerPool:
     timer: TimerBase
     threads: int
 
-    def __init__(self, timer, *, threads=1):
+    def __init__(self, timer: TimerBase, *, threads: int = 1):
+        """ Setups a pool with specified timer and number of threads. """
         self.timer = timer
         self.threads = threads
 
-    def measure(self, input_files: Iterable[str]):
+    def measure(self, input_files: Iterable[str]) -> List[float]:
+        """ Runs timer for each input file and returns the results (in seconds).
+
+        The order of results is same as order of input files.
+        """
         with ThreadPoolExecutor(max_workers=self.threads) as executor:
             futures = []
             for input_file in input_files:

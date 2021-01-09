@@ -16,6 +16,11 @@ class SowaToSinolConverter(ConverterBase):
     _prog_ext = '(?:cpp|c|cc|pas)'
 
     def __init__(self, *args, auto_time_limits=True, threads=1, **kwargs):
+        """ Instantiates new SowaToSinolConverter.
+
+        :param auto_time_limits: If true, automatically sets time limits.
+        :param threads: Number of threads for parallel execution.
+        """
         super().__init__(*args, **kwargs)
         self.auto_time_limits = auto_time_limits
         self.threads = threads
@@ -88,8 +93,9 @@ class SowaToSinolConverter(ConverterBase):
             log.warning('Non-standard checker requires manual fix.')
         self.ignore('check/[^.]*')
 
-    def make_time_limits_config(self):
+    def make_time_limits_config(self) -> str:
         """ Heuristically chooses time limit and returns config entry setting it """
+
         main_solution = self.one(rf'sol/{self._id}\.{self._prog_ext}')
         error_assert(main_solution, 'No main solution found')
         main_solution = self._source.abspath(main_solution)
