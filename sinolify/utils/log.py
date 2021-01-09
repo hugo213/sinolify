@@ -2,7 +2,9 @@ import logging
 import sys
 
 log = logging.getLogger(__package__)
-log.addHandler(logging.StreamHandler(stream=sys.stderr))
+_handler = logging.StreamHandler(stream=sys.stderr)
+_handler.setFormatter(logging.Formatter('%(levelname)-7s %(message)s'))
+log.addHandler(_handler)
 
 
 def die(*args):
