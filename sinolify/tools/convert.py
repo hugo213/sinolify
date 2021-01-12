@@ -3,7 +3,7 @@ import sys
 
 from sinolify.utils.package import Package
 from sinolify.converters.sowa import SowaToSinolConverter
-from sinolify.utils.log import log
+from sinolify.utils.log import log, error_assert
 from sinolify.tools.base import ToolBase
 
 
@@ -30,8 +30,8 @@ class ConvertTool(ToolBase):
         return parser
 
     def validate_args(self, args):
-        assert args.output.endswith('.zip'), 'Output must end with .zip'
-        assert args.f or not os.path.exists(args.output), 'Output exists. Use -f to overwrite.'
+        error_assert(args.output.endswith('.zip'), 'Output must end with .zip')
+        error_assert(args.f or not os.path.exists(args.output), 'Output exists. Use -f to overwrite.')
 
     def main(self):
         sowa = Package(zip=self.args.source)

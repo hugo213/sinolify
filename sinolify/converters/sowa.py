@@ -71,7 +71,7 @@ class SowaToSinolConverter(ConverterBase):
                                           rf'prog/{self._id}{i + 2}.\1', p))
 
         self.copy(rf'utils/.*\.({self._prog_ext}|sh)', lambda p: f'prog/{p}')
-        self.copy_rename(rf'sol/(.*{self._prog_ext})', r'prog/other/\1')
+        self.copy_rename(rf'sol/(.*{self._prog_ext})', r'prog/other/\1', ignore_processed=True)
 
     def make_checker(self) -> None:
         """Copies a checker.
@@ -104,7 +104,7 @@ class SowaToSinolConverter(ConverterBase):
 
         config = 'time_limits:\n'
         tests = [os.path.basename(i).lstrip(self._id).rstrip('.in') for i in inputs]
-        config += '\n'.join([f'\t{test}: {limit}' for test in sorted(tests)])
+        config += '\n'.join([f'    {test}: {limit}' for test in sorted(tests)])
         return config
 
     def make_config(self):
