@@ -107,9 +107,21 @@ class SowaToSinolConverter(ConverterBase):
         config += '\n'.join([f'    {test}: {limit}' for test in sorted(tests)])
         return config
 
+    def make_title_config(self):
+        """ Extracts title from LaTeX and outputs config entry. """
+        statement = self.one(rf'desc/{self._id}\.tex')
+        if not statement:
+            log.warning('Title requires manual setting.')
+            return "title: TODO\n"
+        else:
+            latex = open(self._source.abspath(statement)).read()
+            title = re.search(r'\\title{(?:\\mbox{)?([^}]*)}', latex).group(1).replace('~', ' ')
+            return f'title: {title}\n'
+
     def make_config(self):
         """ Generates Sinol config. """
         config = open(self._target.abspath('config.yml'), 'w')
+        config.write(self.make_title_config())
         if self.auto_time_limits:
             config.write(self.make_time_limits_config())
 
