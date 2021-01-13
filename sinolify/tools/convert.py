@@ -33,6 +33,7 @@ class ConvertTool(ToolBase):
         error_assert(args.output.endswith('.zip'), 'Output must end with .zip')
         error_assert(args.f or not os.path.exists(args.output), 'Output exists. Use -f to overwrite.')
 
+
     def main(self):
         sowa = Package(zip=self.args.source)
         sinol = Package(id=sowa.id)
