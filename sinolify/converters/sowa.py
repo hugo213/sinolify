@@ -1,7 +1,9 @@
+import os
 import re
 
 from sinolify.converters.base import ConverterBase
 from sinolify.utils.log import log, warning_assert, error_assert
+from sinolify.heuristics.limits import pick_time_limits
 
 
 class SowaToSinolConverter(ConverterBase):
@@ -12,6 +14,16 @@ class SowaToSinolConverter(ConverterBase):
     """
 
     _prog_ext = '(?:cpp|c|cc|pas)'
+
+    def __init__(self, *args, auto_time_limits=True, threads=1, **kwargs):
+        """ Instantiates new SowaToSinolConverter.
+
+        :param auto_time_limits: If true, automatically sets time limits.
+        :param threads: Number of threads for parallel execution.
+        """
+        super().__init__(*args, **kwargs)
+        self.auto_time_limits = auto_time_limits
+        self.threads = threads
 
     @property
     def _id(self) -> str:
@@ -59,7 +71,7 @@ class SowaToSinolConverter(ConverterBase):
                                           rf'prog/{self._id}{i + 2}.\1', p))
 
         self.copy(rf'utils/.*\.({self._prog_ext}|sh)', lambda p: f'prog/{p}')
-        self.copy_rename(rf'sol/(.*{self._prog_ext})', r'prog/other/\1')
+        self.copy_rename(rf'sol/(.*{self._prog_ext})', r'prog/other/\1', ignore_processed=True)
 
     def make_checker(self) -> None:
         """Copies a checker.
@@ -81,6 +93,38 @@ class SowaToSinolConverter(ConverterBase):
             log.warning('Non-standard checker requires manual fix.')
         self.ignore('check/[^.]*')
 
+    def make_time_limits_config(self) -> str:
+        """ Heuristically chooses time limit and returns config entry setting it """
+
+        main_solution = self.one(rf'sol/{self._id}\.{self._prog_ext}')
+        error_assert(main_solution, 'No main solution found')
+        main_solution = self._source.abspath(main_solution)
+        inputs = [self._source.abspath(p) for p in self.find(rf'in/{self._id}\d+[a-z]*.in')]
+        limit = int(pick_time_limits(main_solution, inputs, threads=self.threads) * 1000)
+
+        config = 'time_limits:\n'
+        tests = [os.path.basename(i).lstrip(self._id).rstrip('.in') for i in inputs]
+        config += '\n'.join([f'    {test}: {limit}' for test in sorted(tests)])
+        return config
+
+    def make_title_config(self):
+        """ Extracts title from LaTeX and outputs config entry. """
+        statement = self.one(rf'desc/{self._id}\.tex')
+        if not statement:
+            log.warning('Title requires manual setting.')
+            return "title: TODO\n"
+        else:
+            latex = open(self._source.abspath(statement)).read()
+            title = re.search(r'\\title{(?:\\mbox{)?([^}]*)}', latex).group(1).replace('~', ' ')
+            return f'title: {title}\n'
+
+    def make_config(self):
+        """ Generates Sinol config. """
+        config = open(self._target.abspath('config.yml'), 'w')
+        config.write(self.make_title_config())
+        if self.auto_time_limits:
+            config.write(self.make_time_limits_config())
+
     def convert(self) -> None:
         """ Executes a conversion from Sowa to Sinol.
 
@@ -90,6 +134,7 @@ class SowaToSinolConverter(ConverterBase):
         self.make_solutions()
         self.make_doc()
         self.make_checker()
+        self.make_config()
 
         # Ignore editor backup files
         self.ignore(r'.*(~|\.swp|\.backup|\.bak)')

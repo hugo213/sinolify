@@ -3,12 +3,12 @@ import sys
 
 from sinolify.utils.package import Package
 from sinolify.converters.sowa import SowaToSinolConverter
-from sinolify.utils.log import log
+from sinolify.utils.log import log, error_assert
 from sinolify.tools.base import ToolBase
 
 
 class ConvertTool(ToolBase):
-    description = 'Sowa to Sinol converters'
+    description = 'Sowa to Sinol converter.'
 
     def make_parser(self):
         parser = super().make_parser()
@@ -21,16 +21,23 @@ class ConvertTool(ToolBase):
 
         parser.add_argument('-f', action='store_true',
                             help='Allow overwrite of output file')
+
+        parser.add_argument('-t', action='store_true',
+                            help='Auto adjust time limits')
+
+        parser.add_argument('-j', type=int, default=1,
+                            help='Number of threads for adjusting time limits')
         return parser
 
     def validate_args(self, args):
-        assert args.output.endswith('.zip'), 'Output must end with .zip'
-        assert args.f or not os.path.exists(args.output), 'Output exists. Use -f to overwrite.'
+        error_assert(args.output.endswith('.zip'), 'Output must end with .zip')
+        error_assert(args.f or not os.path.exists(args.output), 'Output exists. Use -f to overwrite.')
+
 
     def main(self):
         sowa = Package(zip=self.args.source)
         sinol = Package(id=sowa.id)
-        converter = SowaToSinolConverter(sowa, sinol)
+        converter = SowaToSinolConverter(sowa, sinol, auto_time_limits=self.args.t, threads=self.args.j)
         converter.convert()
         sinol.save(self.args.output, overwrite=self.args.f)
         log.info('Output saved to %s', self.args.output)
