@@ -8,7 +8,7 @@ from sinolify.tools.base import ToolBase
 
 
 class ConvertTool(ToolBase):
-    description = 'Sowa to Sinol converters'
+    description = 'Sowa to Sinol converter.'
 
     def make_parser(self):
         parser = super().make_parser()
