@@ -11,7 +11,6 @@ def die(*args):
     log.error(*args)
     exit(1)
 
-
 def warning_assert(condition, *args):
     if not condition:
         log.warning(*args)

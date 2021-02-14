@@ -43,6 +43,7 @@ class ConvertTool(ToolBase):
                      and os.path.isdir(os.path.join(args.checkers, 'replace'))),
                      'Checker mapping directory must contain find/ and replace/ subdirectories.')
 
+
     def main(self):
         sowa = Package(zip=self.args.source)
         sinol = Package(id=sowa.id)
