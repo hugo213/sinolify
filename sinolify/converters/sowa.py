@@ -64,7 +64,7 @@ class SowaToSinolConverter(ConverterBase):
     def make_solutions(self) -> None:
         """ Copies solutions.
 
-        Copies the main solution (i.e. named exactly {task id}).
+        Copies the main solution (i.e. named exactly {task id}) to {task id}1.
         The remaining solutions are copied in unspecified order and are
         numbered with integers starting from 2.
         """
@@ -82,7 +82,14 @@ class SowaToSinolConverter(ConverterBase):
         self.copy_rename(rf'sol/(.*{self._prog_ext})', r'prog/other/\1', ignore_processed=True)
 
     def make_checker(self) -> None:
-        """ Converts a checker. TODO """
+        """ Converts a checker.
+
+        If no checker is found in check/, then no action is performed.
+        Otherwise a checker is looked up in the checker mapper. If no
+        match is found, checker is put in the mapper as `todo` and
+        the program terminates with an error. Otherwise the mapped
+        replacement is copied as package's checker.
+        """
 
         original_checker = self.one(rf'check/.*\.{self._prog_ext}')
         if not original_checker:

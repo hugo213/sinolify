@@ -26,10 +26,17 @@ class ConvertTool(ToolBase):
                             help='Auto adjust time limits')
 
         parser.add_argument('--checkers', type=str,
-                            help='Checker mapping directory')
+                            help='''Checker mapping directory. Should contain find/
+                                    and replace/ subdirectories with checkers and
+                                    their replacements respectively. Replacements
+                                    should be named the same as checkers. If the
+                                    replacement name ends with .ignored, it is ignored.
+                                    '''
+                                 )
 
         parser.add_argument('--dry', action='store_true',
-                            help='Dry run, do not save the result')
+                            help='''Dry run, do not save the result, but populate 
+                                    checkers mapper''')
 
         parser.add_argument('-j', '--threads', type=int, default=1,
                             help='Number of threads for adjusting time limits')
