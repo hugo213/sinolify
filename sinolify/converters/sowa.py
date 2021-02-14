@@ -1,8 +1,10 @@
 import os
 import re
+import shutil
 
 from sinolify.converters.base import ConverterBase
-from sinolify.utils.log import log, warning_assert, error_assert
+from sinolify.converters.mapping import ConversionMapping
+from sinolify.utils.log import log, warning_assert, error_assert, die
 from sinolify.heuristics.limits import pick_time_limits
 
 
@@ -15,7 +17,7 @@ class SowaToSinolConverter(ConverterBase):
 
     _prog_ext = '(?:cpp|c|cc|pas)'
 
-    def __init__(self, *args, auto_time_limits=True, threads=1, **kwargs):
+    def __init__(self, *args, auto_time_limits=True, threads=1, checkers=None, **kwargs):
         """ Instantiates new SowaToSinolConverter.
 
         :param auto_time_limits: If true, automatically sets time limits.
@@ -24,6 +26,12 @@ class SowaToSinolConverter(ConverterBase):
         super().__init__(*args, **kwargs)
         self.auto_time_limits = auto_time_limits
         self.threads = threads
+        if checkers:
+            checkers_find, checkers_replace = checkers
+            log.info(f"Setting up checker mapping {checkers_find} -> {checkers_replace}")
+            self.checkers_mapper = ConversionMapping(checkers_find, checkers_replace)
+        else:
+            self.checkers_mapper = None
 
     @property
     def _id(self) -> str:
@@ -63,7 +71,7 @@ class SowaToSinolConverter(ConverterBase):
         log.debug('Making solutions')
 
         error_assert(self.copy_rename(rf'sol/{self._id}\.({self._prog_ext})',
-                                      rf'prog/{self._id}.\1'),
+                                      rf'prog/{self._id}1.\1'),
                      'No main model solution')
 
         for i, p in enumerate(self.find(rf'sol/{self._id}.+\.{self._prog_ext}')):
@@ -74,23 +82,27 @@ class SowaToSinolConverter(ConverterBase):
         self.copy_rename(rf'sol/(.*{self._prog_ext})', r'prog/other/\1', ignore_processed=True)
 
     def make_checker(self) -> None:
-        """Copies a checker.
+        """ Converts a checker. TODO """
 
-        If a checker is named `standard_compare.cpp` it is assumed to be the
-        default checker that can be safely ignored. Otherwise it is copied
-        with `.todo` suffix and a warning is emmited, as Sowa checkers need
-        manual fix (output order change) to work.
-        """
-        if not self.exists('check/.*'):
-            log.debug('No checker found')
-        elif self.exists('check/standard_compare.cpp'):
-            log.debug('Standard checker found')
-            self.ignore('check/standard_compare.cpp')
-        else:
-            error_assert(self.copy_rename(rf'check/.*\.({self._prog_ext})',
-                                          rf'prog/{self._id}chk.\1.todo') == 1,
-                         'Exactly one checker expected')
-            log.warning('Non-standard checker requires manual fix.')
+        original_checker = self.one(rf'check/.*\.{self._prog_ext}')
+        if not original_checker:
+            log.warning('No checker found.')
+            return
+        self.ignore(original_checker)
+        original_checker = self._source.abspath(original_checker)
+        error_assert(self.checkers_mapper, 'Checker found but no checker mapper was set up.')
+        try:
+            replacement = self.checkers_mapper.find(original_checker)
+            if not replacement:
+                log.info('Ignoring the checker.')
+                return
+            log.info(f'Copying the checker from mapper: {replacement}')
+            shutil.copy(replacement, self._target.abspath(f'prog/{self._id}chk{os.path.splitext(replacement)[1]}'))
+        except ConversionMapping.FindError:
+            todo_filename = self.checkers_mapper.todo(original_checker)
+            die(f'Putting the checker in mapper as {todo_filename}. Please fix it.')
+        except ConversionMapping.ReplaceError:
+            die('Unable to find a replacement for the checker in checker mapper.')
         self.ignore('check/[^.]*')
 
     def make_time_limits_config(self) -> str:

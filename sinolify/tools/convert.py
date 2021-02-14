@@ -19,27 +19,43 @@ class ConvertTool(ToolBase):
         parser.add_argument('output', type=str,
                             help='Output .zip file path')
 
-        parser.add_argument('-f', action='store_true',
+        parser.add_argument('-f', '--force', action='store_true',
                             help='Allow overwrite of output file')
 
-        parser.add_argument('-t', action='store_true',
+        parser.add_argument('--time', action='store_true',
                             help='Auto adjust time limits')
 
-        parser.add_argument('-j', type=int, default=1,
+        parser.add_argument('--checkers', type=str,
+                            help='Checker mapping directory')
+
+        parser.add_argument('--dry', action='store_true',
+                            help='Dry run, do not save the result')
+
+        parser.add_argument('-j', '--threads', type=int, default=1,
                             help='Number of threads for adjusting time limits')
         return parser
 
     def validate_args(self, args):
         error_assert(args.output.endswith('.zip'), 'Output must end with .zip')
-        error_assert(args.f or not os.path.exists(args.output), 'Output exists. Use -f to overwrite.')
+        error_assert(args.force or not os.path.exists(args.output), 'Output exists. Use -f to overwrite.')
+        error_assert(not args.checkers or os.path.exists(args.checkers), 'Checker mapping directory does not exist.')
+        error_assert(not args.checkers or (os.path.isdir(os.path.join(args.checkers, 'find'))
+                     and os.path.isdir(os.path.join(args.checkers, 'replace'))),
+                     'Checker mapping directory must contain find/ and replace/ subdirectories.')
 
     def main(self):
         sowa = Package(zip=self.args.source)
         sinol = Package(id=sowa.id)
-        converter = SowaToSinolConverter(sowa, sinol, auto_time_limits=self.args.t, threads=self.args.j)
+        if self.args.checkers:
+            checkers = (os.path.join(self.args.checkers, 'find'), os.path.join(self.args.checkers, 'replace'))
+        else:
+            checkers = None
+        converter = SowaToSinolConverter(sowa, sinol, auto_time_limits=self.args.time, threads=self.args.threads,
+                                         checkers=checkers)
         converter.convert()
-        sinol.save(self.args.output, overwrite=self.args.f)
-        log.info('Output saved to %s', self.args.output)
+        if not self.args.dry:
+            sinol.save(self.args.output, overwrite=self.args.force)
+            log.info('Output saved to %s', self.args.output)
 
 
 def main():

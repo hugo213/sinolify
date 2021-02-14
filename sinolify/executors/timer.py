@@ -4,7 +4,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Iterable, List
 import re
 
-from sinolify.utils.log import die
+from sinolify.utils.log import die, log
 from sinolify.utils.system import where
 
 
@@ -45,7 +45,8 @@ class PerfTimer(TimerBase):
             except subprocess.TimeoutExpired:
                 die('Model solution execution timed out')
             except subprocess.CalledProcessError:
-                die(f'Model solution returned non-zero exit code on {input_file}')
+                log.warning(f'Model solution returned non-zero exit code on {input_file}')
+                return 0
             perf_out = open(tmp.name, 'r').read()
             instr = int(re.search(r'(\d+),,instructions', perf_out).group(1))
             return instr/(self.ghz*10**9)
