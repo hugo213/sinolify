@@ -134,7 +134,7 @@ class SowaToSinolConverter(ConverterBase):
             return "title: TODO\n"
         else:
             latex = open(self._source.abspath(statement)).read()
-            title = re.search(r'\\title{(?:\\mbox{)?([^}]*)}', latex).group(1).replace('~', ' ')
+            title = re.search(r'\\title{(?:\\mbox{)?([^}]*)}', latex).group(1).replace('~', ' ').replace('$', '')
             return f'title: {title}\n'
 
     def make_config(self):
